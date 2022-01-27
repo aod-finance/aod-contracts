@@ -1040,7 +1040,7 @@ interface IAodMinter {
 // distributed and the community can show to govern itself.
 //
 // Have fun reading it. Hopefully it's bug-free. God bless.
-contract MasterChef is Ownable, ReentrancyGuard {
+contract AodMasterChef is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
 
@@ -1075,8 +1075,6 @@ contract MasterChef is Ownable, ReentrancyGuard {
     IBEP20 public aodToken;
     // The AOD minter
     IAodMinter public aodMinter;
-    // Dev address.
-    address public devaddr;
     // AOD tokens created per second.
     uint256 public aodPersec;
     // Bonus muliplier for early AOD makers.
@@ -1098,7 +1096,6 @@ contract MasterChef is Ownable, ReentrancyGuard {
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
     event SetFeeAddress(address indexed user, address indexed newAddress);
-    event SetDevAddress(address indexed user, address indexed newAddress);
     event UpdateEmissionRate(address indexed user, uint256 aodPersec);
     event addPool(uint256 indexed pid, address lpToken, uint256 allocPoint, uint256 depositFeeBP);
     event setPool(uint256 indexed pid, address lpToken, uint256 allocPoint, uint256 depositFeeBP);
@@ -1107,14 +1104,12 @@ contract MasterChef is Ownable, ReentrancyGuard {
     constructor(
         IBEP20 _aodToken,
         IAodMinter _aodMinter,
-        address _devaddr,
         address _feeAddress,
         uint256 _aodPersec,
         uint256 _startTimestamp
     ) public {
         aodToken = _aodToken;
         aodMinter = _aodMinter;
-        devaddr = _devaddr;
         feeAddress = _feeAddress;
         aodPersec = _aodPersec;
         startTimestamp  = _startTimestamp;
@@ -1281,13 +1276,6 @@ contract MasterChef is Ownable, ReentrancyGuard {
     // Safe AOD transfer function, just in case if rounding error causes pool to not have enough AOD.
     function safeAodTransfer(address _to, uint256 _amount) internal {
         aodMinter.safeAodTransfer(_to, _amount);
-    }
-
-    // Update dev address.
-    function setDevAddress(address _devaddr) external {
-        require(msg.sender == devaddr, "dev: wut?");
-        devaddr = _devaddr;
-        emit SetDevAddress(msg.sender, _devaddr);
     }
 
     function setFeeAddress(address _feeAddress) external {
